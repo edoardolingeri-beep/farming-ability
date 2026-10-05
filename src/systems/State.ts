@@ -1,42 +1,43 @@
-import config from '../data/config.json';
-import crops from '../data/crops.json';
+import balance from '../data/balance.json';
 import map from '../data/map.json';
 
-export type CropId = keyof typeof crops;
-export type ItemId = CropId;
-
-export interface FieldState {
-  crop: CropId | null;
-  /** Epoch ms. Growth is derived from wall-clock time, so it continues while the game is closed. */
-  plantedAt: number;
-}
-
 export interface GameState {
-  version: 1;
+  version: 2;
   coins: number;
-  inventory: Partial<Record<ItemId, number>>;
-  fields: FieldState[];
+  /** Wheat bundles in the player's arms. */
+  carry: number;
+  /** Wheat bundles on the shop shelf. */
+  shelf: number;
+  /** Coins waiting on the money spot next to the till. */
+  moneyPile: number;
+  /** Coins already paid into each upgrade pad. */
+  padPaid: Record<string, number>;
+  unlocked: string[];
+  /** Per field, per plot: epoch ms when it was last cut (0 = ripe). Growth runs on wall-clock time, so it continues while the game is closed. */
+  plots: Record<string, number[]>;
   savedAt: number;
 }
 
-export const CROPS = crops;
+export const BALANCE = balance;
+export const GROW_MS = balance.wheat.growSeconds * 1000;
 
 export function newGame(): GameState {
+  const plots: Record<string, number[]> = {};
+  for (const f of map.fields) plots[f.id] = new Array(f.cols * f.rows).fill(0);
   return {
-    version: 1,
-    coins: config.startCoins,
-    inventory: {},
-    fields: map.fields.map(() => ({ crop: null, plantedAt: 0 })),
+    version: 2,
+    coins: balance.startCoins,
+    carry: 0,
+    shelf: 0,
+    moneyPile: 0,
+    padPaid: {},
+    unlocked: [],
+    plots,
     savedAt: Date.now(),
   };
 }
 
-export function growMs(crop: CropId) {
-  return CROPS[crop].growSeconds * 1000;
-}
-
-/** 0..1 growth of a field at time `now`, or null if empty. */
-export function fieldProgress(f: FieldState, now: number): number | null {
-  if (!f.crop) return null;
-  return Math.min(1, Math.max(0, (now - f.plantedAt) / growMs(f.crop)));
+/** 0..1 growth of a plot. */
+export function plotProgress(cutAt: number, now: number) {
+  return cutAt === 0 ? 1 : Math.min(1, Math.max(0, (now - cutAt) / GROW_MS));
 }

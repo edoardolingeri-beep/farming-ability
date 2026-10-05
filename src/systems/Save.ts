@@ -1,6 +1,6 @@
-import { CROPS, newGame, type GameState } from './State';
+import { newGame, type GameState } from './State';
 
-const KEY = 'valle-girasole/save/v1';
+const KEY = 'valle-girasole/save/v2';
 
 /** Loads the saved game, repairing anything that no longer matches the data files. */
 export function loadGame(): { state: GameState; fresh: boolean } {
@@ -14,14 +14,18 @@ export function loadGame(): { state: GameState; fresh: boolean } {
   try {
     const parsed = JSON.parse(raw) as GameState;
     const base = newGame();
+    const plots = { ...base.plots };
+    for (const id of Object.keys(plots)) {
+      const saved = parsed.plots?.[id];
+      if (Array.isArray(saved) && saved.length === plots[id].length) plots[id] = saved;
+    }
     const state: GameState = {
       ...base,
       ...parsed,
-      inventory: { ...parsed.inventory },
-      fields: base.fields.map((f, i) => {
-        const saved = parsed.fields?.[i];
-        return saved && (saved.crop === null || saved.crop in CROPS) ? { ...saved } : f;
-      }),
+      version: 2,
+      padPaid: { ...parsed.padPaid },
+      unlocked: [...(parsed.unlocked ?? [])],
+      plots,
     };
     return { state, fresh: false };
   } catch {

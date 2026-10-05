@@ -1,13 +1,11 @@
 {
-  "startCoins": 20,
-  "saveIntervalSeconds": 4,
+  "saveIntervalSeconds": 3,
   "camera": {
     "fov": 35,
     "yawDeg": 45,
-    "pitchDeg": 52,
-    "startDistance": 46,
-    "minDistance": 22,
-    "maxDistance": 85,
-    "bounds": { "minX": -26, "maxX": 26, "minZ": -26, "maxZ": 26 }
+    "pitchDeg": 50,
+    "startDistance": 23,
+    "minDistance": 16,
+    "maxDistance": 42
   }
 }

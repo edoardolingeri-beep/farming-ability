@@ -172,3 +172,155 @@ export function makeLilyGeometry() {
     place(ball(0.07, '#ff9cc2', 5, 3), 0.08, 0.08, 0.05),
   ]);
 }
+
+// ---------------------------------------------------------------- farm clutter
+
+export function makeHayGeometry() {
+  return merge([
+    place(cyl(0.55, 0.55, 0.9, '#f2c94c', 14), 0, 0.55, 0, 0, 0, Math.PI / 2),
+    place(cyl(0.42, 0.42, 0.92, '#e5b83a', 14), 0, 0.55, 0, 0, 0, Math.PI / 2),
+    place(cyl(0.56, 0.56, 0.08, '#c98f2a', 14), 0.22, 0.55, 0, 0, 0, Math.PI / 2),
+    place(cyl(0.56, 0.56, 0.08, '#c98f2a', 14), -0.22, 0.55, 0, 0, 0, Math.PI / 2),
+  ]);
+}
+
+export function makeCrateGeometry() {
+  return merge([
+    rbox(0.8, 0.6, 0.6, 0.05, '#c58a52'),
+    place(box(0.82, 0.08, 0.62, '#9c6a3a'), 0, 0.18, 0),
+    place(box(0.82, 0.08, 0.62, '#9c6a3a'), 0, -0.18, 0),
+  ].map((g) => place(g, 0, 0.3, 0)));
+}
+
+export function makeBarrelGeometry() {
+  return merge([
+    place(cyl(0.34, 0.3, 0.8, '#b97a45', 12), 0, 0.4, 0),
+    place(cyl(0.36, 0.36, 0.07, '#7a7f87', 12), 0, 0.15, 0),
+    place(cyl(0.36, 0.36, 0.07, '#7a7f87', 12), 0, 0.65, 0),
+    place(cyl(0.3, 0.3, 0.02, '#8f5a2e', 12), 0, 0.805, 0),
+  ]);
+}
+
+export function makeSackGeometry() {
+  return merge([
+    place(ball(0.38, '#e8d3a8', 9, 7), 0, 0.32, 0, 0, 0, 0, 1, 0.9, 0.85),
+    place(cyl(0.12, 0.2, 0.18, '#e8d3a8', 8), 0, 0.68, 0),
+    place(cyl(0.13, 0.13, 0.05, '#d9483b', 8), 0, 0.64, 0),
+  ]);
+}
+
+export function makeCypressGeometry() {
+  return merge([
+    place(cyl(0.12, 0.16, 0.5, PALETTE.trunk, 6), 0, 0.25, 0),
+    place(ball(0.6, '#4aa84e', 8, 7), 0, 1.7, 0, 0, 0, 0, 1, 2.6, 1),
+    place(ball(0.42, '#5ec05a', 7, 6), 0.12, 2.2, 0.2, 0, 0, 0, 1, 2.2, 1),
+  ]);
+}
+
+// ---------------------------------------------------------------- items
+
+/** A tied sheaf of wheat: the item the player carries. ~0.5 wide, 0.3 tall when lying down. */
+export function makeWheatBundleGeometry() {
+  const parts: THREE.BufferGeometry[] = [
+    place(cyl(0.16, 0.16, 0.62, '#f4c63a', 9), 0, 0, 0, 0, 0, Math.PI / 2),
+    place(cyl(0.165, 0.165, 0.09, '#d9483b', 9), 0, 0, 0, 0, 0, Math.PI / 2),
+  ];
+  // fluffy ears at one end
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    parts.push(place(ball(0.09, '#ffd95a', 6, 4), 0.33, Math.sin(a) * 0.1, Math.cos(a) * 0.1, 0, 0, 0, 1.6, 0.8, 0.8));
+  }
+  parts.push(place(ball(0.1, '#ffe27a', 6, 4), 0.38, 0, 0, 0, 0, 0, 1.6, 0.9, 0.9));
+  return merge(parts);
+}
+
+export function makeCoinGeometry() {
+  return merge([
+    cyl(0.2, 0.2, 0.07, '#e9a215', 16),
+    place(cyl(0.15, 0.15, 0.075, '#ffd23a', 16), 0, 0.002, 0),
+  ]);
+}
+
+// ---------------------------------------------------------------- shop
+
+/** Open wooden rack, long side along Z, with crates the stock sits in. Front faces -X. */
+export function makeShelfGeometry() {
+  const parts: THREE.BufferGeometry[] = [];
+  const L = 4.2;
+  for (const z of [-L / 2, L / 2]) for (const x of [-0.45, 0.45]) {
+    parts.push(place(rbox(0.14, 1.5, 0.14, 0.04, PALETTE.woodDark), x, 0.75, z));
+  }
+  for (const y of [0.35, 0.95]) {
+    parts.push(place(rbox(1.05, 0.1, L + 0.2, 0.04, PALETTE.wood), 0, y, 0));
+    for (let i = 0; i < 4; i++) {
+      const z = -L / 2 + 0.55 + i * ((L - 1.1) / 3);
+      parts.push(place(rbox(0.9, 0.22, 0.95, 0.04, '#d9a46a'), 0, y + 0.16, z));
+    }
+  }
+  // sign board on top
+  parts.push(place(rbox(0.12, 0.7, 2.6, 0.08, '#2f8a3a'), 0, 1.85, 0));
+  parts.push(place(rbox(0.14, 0.52, 2.4, 0.06, '#fff2c6'), 0, 1.85, 0));
+  return merge(parts);
+}
+
+/** Checkout counter, long side along X. */
+export function makeCounterGeometry() {
+  return merge([
+    place(rbox(2.2, 0.9, 0.9, 0.08, '#9a4b2f'), 0, 0.45, 0),
+    place(rbox(2.35, 0.1, 1.0, 0.04, '#6e3420'), 0, 0.93, 0),
+    // cash register
+    place(rbox(0.55, 0.32, 0.45, 0.06, '#3a9ad9'), -0.45, 1.13, 0),
+    place(rbox(0.5, 0.18, 0.06, 0.03, '#2b6fa3'), -0.45, 1.34, -0.15, -0.5),
+    place(rbox(0.16, 0.08, 0.2, 0.02, '#ffd23a'), -0.45, 1.32, 0.12),
+    // a basket
+    place(rbox(0.5, 0.3, 0.4, 0.06, '#e3b062'), 0.5, 1.12, 0),
+  ]);
+}
+
+// ---------------------------------------------------------------- characters
+
+export interface Look {
+  skin: string;
+  hair: string;
+  shirt: string;
+  pants: string;
+  hat?: boolean;
+  bun?: boolean;
+}
+
+/** Chibi body parts; each limb is its own mesh so it can swing. Origins sit at the joints. */
+export function makeCharacterParts(look: Look) {
+  const torso = merge([
+    place(rbox(0.5, 0.42, 0.32, 0.12, look.shirt), 0, 0.21, 0),
+    place(rbox(0.52, 0.26, 0.34, 0.1, look.pants), 0, 0.02, 0),
+    // overall straps
+    place(box(0.06, 0.4, 0.34, look.pants), -0.14, 0.2, 0),
+    place(box(0.06, 0.4, 0.34, look.pants), 0.14, 0.2, 0),
+  ]);
+  const headParts: THREE.BufferGeometry[] = [
+    place(ball(0.3, look.skin, 12, 10), 0, 0.3, 0),
+    place(ball(0.045, '#2a1a12', 6, 4), -0.1, 0.33, 0.27),
+    place(ball(0.045, '#2a1a12', 6, 4), 0.1, 0.33, 0.27),
+    place(ball(0.05, '#ff9b8a', 6, 4), -0.17, 0.24, 0.24, 0, 0, 0, 1, 0.6, 0.4),
+    place(ball(0.05, '#ff9b8a', 6, 4), 0.17, 0.24, 0.24, 0, 0, 0, 1, 0.6, 0.4),
+    // hair cap (back + top)
+    place(ball(0.32, look.hair, 12, 8), 0, 0.36, -0.05, 0, 0, 0, 1, 0.95, 0.95),
+    place(ball(0.2, look.hair, 8, 6), 0, 0.5, 0.12, 0, 0, 0, 1.4, 0.45, 0.8),
+  ];
+  if (look.bun) headParts.push(place(ball(0.14, look.hair, 8, 6), 0, 0.55, -0.26));
+  if (look.hat) {
+    headParts.push(place(cyl(0.4, 0.4, 0.05, '#f0cf6c', 16), 0, 0.55, -0.03, -0.18));
+    headParts.push(place(cyl(0.22, 0.27, 0.2, '#f0cf6c', 12), 0, 0.66, -0.05, -0.18));
+    headParts.push(place(cyl(0.275, 0.275, 0.06, '#d9483b', 12), 0, 0.6, -0.04, -0.18));
+  }
+  const head = merge(headParts);
+  const arm = merge([
+    place(rbox(0.13, 0.36, 0.13, 0.06, look.shirt), 0, -0.16, 0),
+    place(ball(0.075, look.skin, 6, 5), 0, -0.36, 0),
+  ]);
+  const leg = merge([
+    place(rbox(0.15, 0.3, 0.16, 0.06, look.pants), 0, -0.15, 0),
+    place(rbox(0.17, 0.09, 0.24, 0.04, '#5a3a24'), 0, -0.31, 0.04),
+  ]);
+  return { torso, head, arm, leg };
+}

@@ -21,13 +21,13 @@ function makeWheatTuft() {
   return merge(parts);
 }
 
-const TUFTS_PER_SIDE = 5;
+const TUFTS_PER_SIDE = 2;
 export const TUFTS_PER_FIELD = TUFTS_PER_SIDE * TUFTS_PER_SIDE;
 
 interface Slot { ox: number; oz: number; ry: number; s: number; tint: number }
 
 /**
- * All crops of all fields live in a single InstancedMesh. Each field owns a
+ * All crops of all plots live in a single InstancedMesh. Each plot owns a
  * contiguous block of TUFTS_PER_FIELD instances that it scales and tints.
  */
 export class CropInstancer {
@@ -67,15 +67,15 @@ export class CropInstancer {
     for (let i = 0; i < total; i++) this.mesh.setColorAt(i, this.c.set('#ffffff'));
 
     const rand = rng(4242);
-    const inner = fieldSize * 0.78;
+    const inner = fieldSize * 0.62;
     for (let f = 0; f < fieldCount; f++) {
       const list: Slot[] = [];
       for (let ix = 0; ix < TUFTS_PER_SIDE; ix++) for (let iz = 0; iz < TUFTS_PER_SIDE; iz++) {
         list.push({
-          ox: ((ix + 0.5) / TUFTS_PER_SIDE - 0.5) * inner + (rand() - 0.5) * 0.12,
-          oz: ((iz + 0.5) / TUFTS_PER_SIDE - 0.5) * inner + (rand() - 0.5) * 0.12,
+          ox: ((ix + 0.5) / TUFTS_PER_SIDE - 0.5) * inner + (rand() - 0.5) * 0.14,
+          oz: ((iz + 0.5) / TUFTS_PER_SIDE - 0.5) * inner + (rand() - 0.5) * 0.14,
           ry: rand() * Math.PI * 2,
-          s: 0.85 + rand() * 0.3,
+          s: 1.05 + rand() * 0.3,
           tint: (rand() - 0.5) * 0.08,
         });
       }

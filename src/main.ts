@@ -7,7 +7,7 @@ import { Game } from './Game';
 import { wipeSave } from './systems/Save';
 import { showSplash } from './ui/Splash';
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 
 // ?reset in the URL starts a fresh farm (handy while testing).
 if (new URLSearchParams(location.search).has('reset')) wipeSave();

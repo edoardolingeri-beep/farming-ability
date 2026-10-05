@@ -2,98 +2,70 @@ import * as THREE from 'three';
 import { merge, place, rbox, vertexColorMaterial } from './geo';
 import { PALETTE } from './props';
 import type { CropInstancer } from './Crops';
-import { ease, tween } from '../systems/Tween';
+import { ease } from '../systems/Tween';
 
-let soilGeo: THREE.BufferGeometry | null = null;
+export interface FieldDef { id: string; x: number; z: number; cols: number; rows: number; locked?: boolean }
 
-/** Raised soil bed with furrows; shared by every field. */
-function getSoilGeometry(size: number) {
-  if (soilGeo) return soilGeo;
-  const parts = [place(rbox(size, 0.28, size, 0.12, PALETTE.soil), 0, 0.14, 0)];
-  const rows = 5;
-  for (let i = 0; i < rows; i++) {
-    const z = ((i + 0.5) / rows - 0.5) * size * 0.78;
-    parts.push(place(rbox(size * 0.84, 0.12, size * 0.11, 0.05, PALETTE.soilDark), 0, 0.29, z));
-  }
-  soilGeo = merge(parts);
-  return soilGeo;
-}
+const SPROUT = new THREE.Color('#5dbb46');
+const GROWING = new THREE.Color('#a9cf45');
+const RIPE = new THREE.Color('#f4c232');
 
-export interface CropColors { sprout: string; growing: string; ripe: string }
-
-/** Visual side of a field: the soil bed plus its block of crop instances. */
+/**
+ * A soil bed split into plots. Each plot grows wheat on its own timer; walking
+ * over a ripe plot cuts it (see Game). The crops themselves are drawn by the
+ * shared CropInstancer, one block of instances per plot.
+ */
 export class Field {
   readonly group = new THREE.Group();
-  readonly soil: THREE.Mesh;
-  /** Multiplier animated by plant/harvest tweens. */
-  private popScale = 1;
-  private lastKey = '';
-  private readonly origin = new THREE.Vector3();
-  private readonly color = new THREE.Color();
-  private readonly cs = new THREE.Color();
-  private readonly cg = new THREE.Color();
-  private readonly cr = new THREE.Color();
+  readonly plots: { x: number; z: number; slot: number }[] = [];
+  /** Per-plot pop multiplier for the cut/regrow animation. */
+  private pop: number[] = [];
+  private keys: string[] = [];
+  private color = new THREE.Color();
+  private v = new THREE.Vector3();
 
-  constructor(readonly index: number, x: number, z: number, size: number, private crops: CropInstancer) {
-    this.soil = new THREE.Mesh(getSoilGeometry(size), vertexColorMaterial);
-    this.soil.castShadow = true;
-    this.soil.receiveShadow = true;
-    this.soil.userData.pick = { kind: 'field', index };
-    this.group.add(this.soil);
-    this.group.position.set(x, 0, z);
-    this.origin.set(x, 0.3, z);
-  }
-
-  /** World point at the top of the field, for UI anchoring. */
-  get top() {
-    return new THREE.Vector3(this.group.position.x, 0.9, this.group.position.z);
-  }
-
-  /**
-   * Redraws the crops. progress: 0..1 growth, or null when empty.
-   * Cheap to call every frame: it skips work when nothing visible changed.
-   */
-  render(progress: number | null, colors: CropColors | null) {
-    const p = progress === null ? -1 : Math.round(progress * 200) / 200;
-    const key = `${p}|${this.popScale.toFixed(3)}`;
-    if (key === this.lastKey) return;
-    this.lastKey = key;
-    if (progress === null || !colors) {
-      this.crops.write(this.index, this.origin, 0, this.color.set('#ffffff'));
-      return;
+  constructor(readonly def: FieldDef, plotSize: number, firstSlot: number, private crops: CropInstancer) {
+    const w = def.cols * plotSize, d = def.rows * plotSize;
+    const parts = [place(rbox(w + 0.3, 0.26, d + 0.3, 0.14, PALETTE.soil), 0, 0.13, 0)];
+    for (let c = 0; c < def.cols; c++) for (let r = 0; r < def.rows; r++) {
+      const x = (c + 0.5) * plotSize - w / 2, z = (r + 0.5) * plotSize - d / 2;
+      parts.push(place(rbox(plotSize * 0.86, 0.1, plotSize * 0.86, 0.12, PALETTE.soilDark), x, 0.25, z));
+      this.plots.push({ x: def.x + x, z: def.z + z, slot: firstSlot + this.plots.length });
+      this.pop.push(1);
+      this.keys.push('');
     }
-    this.cs.set(colors.sprout); this.cg.set(colors.growing); this.cr.set(colors.ripe);
-    if (progress < 1) {
-      this.color.copy(this.cs).lerp(this.cg, ease.outCubic(progress));
-    } else {
-      this.color.copy(this.cr);
-    }
-    const growth = progress >= 1 ? 1 : 0.22 + 0.58 * ease.outCubic(progress);
-    this.crops.write(this.index, this.origin, growth * this.popScale, this.color);
+    const bed = new THREE.Mesh(merge(parts), vertexColorMaterial);
+    bed.receiveShadow = true;
+    bed.castShadow = true;
+    this.group.add(bed);
+    this.group.position.set(def.x, 0, def.z);
   }
 
-  /** Crops spring up when planted. */
-  animatePlant() {
-    this.popScale = 0;
-    tween(0.55, (k) => { this.popScale = ease.outBack(k); });
-    this.squash();
+  get size() {
+    return this.plots.length;
   }
 
-  /** Crops shrink away, then `done` clears the field. */
-  animateHarvest(done: () => void) {
-    tween(0.22, (k) => { this.popScale = 1 - ease.inCubic(k); }, () => {
-      this.popScale = 1;
-      done();
-    });
-    this.squash();
+  /** Draws plot i at growth progress 0..1 (1 = ripe). */
+  render(i: number, progress: number) {
+    const p = this.plots[i];
+    const pop = this.pop[i];
+    const key = `${Math.round(progress * 100)}|${pop.toFixed(2)}`;
+    if (key === this.keys[i]) return;
+    this.keys[i] = key;
+    if (progress >= 1) this.color.copy(RIPE);
+    else this.color.copy(SPROUT).lerp(GROWING, progress);
+    const growth = progress >= 1 ? 1 : 0.15 + 0.6 * ease.outCubic(progress);
+    this.v.set(p.x, 0.28, p.z);
+    this.crops.write(p.slot, this.v, growth * pop, this.color);
   }
 
-  /** Little jelly bounce of the soil bed for tap feedback. */
-  squash() {
-    const g = this.group;
-    tween(0.4, (k) => {
-      const w = Math.sin(k * Math.PI * 2.5) * (1 - k) * 0.12;
-      g.scale.set(1 + w, 1 - w * 1.5, 1 + w);
-    }, () => g.scale.set(1, 1, 1));
+  setPop(i: number, v: number) {
+    this.pop[i] = v;
+  }
+
+  /** Hides every plot (locked field). */
+  hide() {
+    for (const p of this.plots) this.crops.write(p.slot, this.v.set(p.x, 0.28, p.z), 0, this.color);
+    this.keys.fill('');
   }
 }

@@ -1,0 +1,29 @@
+{
+  "startCoins": 0,
+  "player": {
+    "speed": 5.4,
+    "capacity": 8,
+    "capacityUpgraded": 16,
+    "harvestRadius": 0.95
+  },
+  "wheat": {
+    "name": "Grano",
+    "growSeconds": 9,
+    "price": 3
+  },
+  "shop": {
+    "shelfCapacity": 16,
+    "customerEverySeconds": [2.5, 5],
+    "maxCustomers": 6,
+    "wantMin": 1,
+    "wantMax": 3,
+    "checkoutSeconds": 0.7,
+    "customerSpeed": 2.8
+  },
+  "pads": [
+    { "id": "field2", "label": "Nuovo campo", "cost": 30, "x": -4.5, "z": 3.4, "w": 2.4, "d": 2.4 },
+    { "id": "backpack", "label": "Braccia forti", "cost": 45, "x": 0.8, "z": 6.6, "w": 1.9, "d": 1.9 },
+    { "id": "cashier", "label": "Cassiere", "cost": 90, "x": 11.2, "z": 0.6, "w": 1.9, "d": 1.9 },
+    { "id": "mill", "label": "Mulino", "cost": 150, "x": -10.6, "z": -1.6, "w": 2.4, "d": 2.4, "soon": true }
+  ]
+}
