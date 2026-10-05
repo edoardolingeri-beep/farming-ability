@@ -324,3 +324,65 @@ export function makeCharacterParts(look: Look) {
   ]);
   return { torso, head, arm, leg };
 }
+
+// ---------------------------------------------------------------- mill & flour
+
+export function makeFlourSackGeometry() {
+  return merge([
+    place(ball(0.26, '#fbf6ea', 12, 9), 0, 0, 0, 0, 0, 0, 1.15, 0.62, 0.85),
+    place(cyl(0.07, 0.12, 0.12, '#fbf6ea', 8), 0.3, 0, 0, 0, 0, Math.PI / 2),
+    place(cyl(0.075, 0.075, 0.04, '#d9483b', 8), 0.27, 0, 0, 0, 0, Math.PI / 2),
+    place(ball(0.09, '#f2c94c', 8, 6), -0.05, 0.13, 0.12, 0, 0, 0, 1, 0.4, 1),
+  ]);
+}
+
+/** Stone windmill tower; the sails are a separate geometry so they can turn. Door faces +Z. */
+export function makeMillTowerGeometry() {
+  const parts: THREE.BufferGeometry[] = [
+    place(cyl(1.15, 1.35, 3.0, '#efe3c8', 16), 0, 1.5, 0),
+    place(cyl(1.38, 1.42, 0.35, '#b9ae98', 16), 0, 0.17, 0),
+    place(cyl(1.2, 1.2, 0.12, '#c8674b', 16), 0, 3.02, 0),
+    place(cone(1.45, 1.5, '#d9483b', 16), 0, 3.8, 0),
+    place(ball(0.14, '#ffd23a', 8, 6), 0, 4.6, 0),
+    // door + windows
+    place(rbox(0.75, 1.15, 0.2, 0.1, '#9a6338'), 0, 0.72, 1.28),
+    place(rbox(0.42, 0.42, 0.12, 0.08, '#8fd0f5'), 0, 2.15, 1.18),
+    place(rbox(0.42, 0.42, 0.12, 0.08, '#8fd0f5'), 1.18, 1.9, 0, 0, Math.PI / 2),
+  ];
+  return merge(parts);
+}
+
+export function makeMillSailsGeometry() {
+  const parts: THREE.BufferGeometry[] = [place(cyl(0.2, 0.2, 0.2, '#6b4a2f', 10), 0, 0, 0, Math.PI / 2)];
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
+    const blade = merge([
+      place(rbox(0.12, 2.2, 0.08, 0.03, '#7a5233'), 0, 1.2, 0),
+      place(rbox(0.6, 1.7, 0.04, 0.03, '#fff8ee'), 0.32, 1.4, 0.02),
+      place(box(0.62, 0.05, 0.06, '#a8865f'), 0.32, 0.95, 0.04),
+      place(box(0.62, 0.05, 0.06, '#a8865f'), 0.32, 1.45, 0.04),
+      place(box(0.62, 0.05, 0.06, '#a8865f'), 0.32, 1.95, 0.04),
+    ]);
+    parts.push(place(blade, 0, 0, 0.08, 0, 0, a));
+  }
+  return merge(parts);
+}
+
+// ---------------------------------------------------------------- chicken
+
+export function makeChickenGeometry() {
+  return merge([
+    place(ball(0.26, '#ffffff', 10, 8), 0, 0.32, 0, 0, 0, 0, 1, 0.9, 1.25),
+    place(ball(0.16, '#ffffff', 10, 8), 0, 0.58, 0.2),
+    place(cone(0.06, 0.12, '#ffb020', 6), 0, 0.57, 0.38, Math.PI / 2),
+    place(ball(0.06, '#e8453c', 6, 4), 0, 0.74, 0.2, 0, 0, 0, 0.7, 1, 1.4),
+    place(ball(0.04, '#e8453c', 6, 4), 0, 0.5, 0.33),
+    place(ball(0.025, '#222222', 5, 4), -0.09, 0.62, 0.32),
+    place(ball(0.025, '#222222', 5, 4), 0.09, 0.62, 0.32),
+    place(ball(0.12, '#f2f2f2', 8, 6), 0, 0.42, -0.3, 0.6, 0, 0, 0.8, 1, 0.6),
+    place(ball(0.1, '#f5f5f5', 8, 6), -0.24, 0.34, -0.02, 0, 0, 0.3, 0.4, 0.8, 1.1),
+    place(ball(0.1, '#f5f5f5', 8, 6), 0.24, 0.34, -0.02, 0, 0, -0.3, 0.4, 0.8, 1.1),
+    place(cyl(0.02, 0.02, 0.14, '#ffb020', 4), -0.08, 0.07, 0),
+    place(cyl(0.02, 0.02, 0.14, '#ffb020', 4), 0.08, 0.07, 0),
+  ]);
+}

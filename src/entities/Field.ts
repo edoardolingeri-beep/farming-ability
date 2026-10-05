@@ -20,7 +20,7 @@ export class Field {
   readonly plots: { x: number; z: number; slot: number }[] = [];
   /** Per-plot pop multiplier for the cut/regrow animation. */
   private pop: number[] = [];
-  private keys: string[] = [];
+  private keys: number[] = [];
   private color = new THREE.Color();
   private v = new THREE.Vector3();
 
@@ -32,7 +32,7 @@ export class Field {
       parts.push(place(rbox(plotSize * 0.86, 0.1, plotSize * 0.86, 0.12, PALETTE.soilDark), x, 0.25, z));
       this.plots.push({ x: def.x + x, z: def.z + z, slot: firstSlot + this.plots.length });
       this.pop.push(1);
-      this.keys.push('');
+      this.keys.push(-1);
     }
     const bed = new THREE.Mesh(merge(parts), vertexColorMaterial);
     bed.receiveShadow = true;
@@ -49,7 +49,7 @@ export class Field {
   render(i: number, progress: number) {
     const p = this.plots[i];
     const pop = this.pop[i];
-    const key = `${Math.round(progress * 100)}|${pop.toFixed(2)}`;
+    const key = Math.round(progress * 100) * 1000 + Math.round(pop * 100);
     if (key === this.keys[i]) return;
     this.keys[i] = key;
     if (progress >= 1) this.color.copy(RIPE);
@@ -66,6 +66,6 @@ export class Field {
   /** Hides every plot (locked field). */
   hide() {
     for (const p of this.plots) this.crops.write(p.slot, this.v.set(p.x, 0.28, p.z), 0, this.color);
-    this.keys.fill('');
+    this.keys.fill(-1);
   }
 }

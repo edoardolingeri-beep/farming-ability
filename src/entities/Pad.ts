@@ -17,8 +17,11 @@ export class Pad {
   private pulse = 0;
   private shown: [number, number] = [0, 0];
 
+  /** Shown on 'soon' pads instead of a price, e.g. "LIVELLO 3". */
+  lockText = 'PRESTO!';
+
   constructor(
-    readonly kind: PadKind,
+    public kind: PadKind,
     readonly x: number,
     readonly z: number,
     readonly w: number,
@@ -52,9 +55,15 @@ export class Pad {
     this.mesh.scale.set(s, 1, s);
   }
 
+  /** Switches between locked ('soon') and payable ('upgrade') looks. */
+  setKind(kind: PadKind) {
+    this.kind = kind;
+    this.lastKey = '';
+  }
+
   /** remaining: coins still to pay (upgrade) or a count to show; progress 0..1. */
   draw(remaining: number, progress: number) {
-    const key = `${remaining}|${progress.toFixed(3)}`;
+    const key = `${this.kind}|${remaining}|${progress.toFixed(3)}`;
     if (key === this.lastKey) return;
     this.lastKey = key;
     this.shown = [remaining, progress];
@@ -123,8 +132,8 @@ export class Pad {
       c.fillText(this.label.toUpperCase(), cx, H * 0.3, W - 40);
       if (this.kind === 'soon') {
         c.font = `${Math.round(H * 0.13)}px ${FONT}`;
-        c.fillText('PRESTO!', cx, H * 0.62);
-        drawLock(c, cx, H * 0.62 - H * 0.2, H * 0.09);
+        c.fillText(this.lockText, cx, H * 0.66);
+        drawLock(c, cx, H * 0.47, H * 0.07);
       } else {
         drawCoin(c, cx - H * 0.17, H * 0.64, H * 0.11);
         c.font = `${Math.round(H * 0.24)}px ${FONT}`;

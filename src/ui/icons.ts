@@ -49,7 +49,15 @@ const SEED_BAG = svg(`
   </g>
 `);
 
+const FLOUR = svg(`
+  <path d="M14 26c-3 10-3 22 2 30 6 5 26 5 32 0 5-8 5-20 2-30z" fill="#fbf6ea" stroke="#6b3f10" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M18 26c4-6 24-6 28 0l-4-10H22z" fill="#efe6d2" stroke="#6b3f10" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M19 26h26" stroke="#d9483b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M32 34v16M32 38l-5-3M32 38l5-3M32 44l-5-3M32 44l5-3" stroke="#e0a321" stroke-width="3" stroke-linecap="round"/>
+`);
+
 export const ICONS = {
+  flour: FLOUR,
   coin: COIN,
   wheat: WHEAT,
   wheatSeed: SEED_BAG,

@@ -3,14 +3,15 @@ import { vertexColorMaterial } from './geo';
 import { makeCounterGeometry, makeShelfGeometry } from './props';
 import type { Colliders } from '../scene/Terrain';
 import map from '../data/map.json';
+import type { ItemType } from '../systems/State';
 
 const SHELF_LEN = 4.2;
 
-/** Market stall: a shelf under a striped awning, and a checkout counter. */
+/** Market stall: a shelf with a sign, and a checkout counter. */
 export class Shop {
   readonly group = new THREE.Group();
-  /** World positions where shelf stock is displayed, in fill order. */
-  readonly slots: THREE.Vector3[] = [];
+  /** World positions where shelf stock is displayed, per product, in fill order. */
+  readonly slots: Record<ItemType, THREE.Vector3[]> = { wheat: [], flour: [] };
 
   constructor(colliders: Colliders) {
     const s = map.shop;
@@ -26,12 +27,11 @@ export class Shop {
     counter.position.set(s.counter.x, 0, s.counter.z);
     this.group.add(shelf, counter, makeSign('BOTTEGA', s.shelf.x + 0.08, 1.85, s.shelf.z));
 
-    // Two bundles per crate, 4 crates per tier, 2 tiers; lower tier first.
-    for (const y of [0.68, 1.28]) {
-      for (let i = 0; i < 4; i++) {
-        const z = -SHELF_LEN / 2 + 0.55 + i * ((SHELF_LEN - 1.1) / 3);
-        for (const dz of [-0.2, 0.2]) this.slots.push(new THREE.Vector3(s.shelf.x, y, s.shelf.z + z + dz));
-      }
+    // Lower tier: wheat, three bundles per crate. Upper tier: flour, two sacks per crate.
+    for (let i = 0; i < 4; i++) {
+      const z = s.shelf.z - SHELF_LEN / 2 + 0.55 + i * ((SHELF_LEN - 1.1) / 3);
+      for (const dz of [-0.28, 0, 0.28]) this.slots.wheat.push(new THREE.Vector3(s.shelf.x, 0.68, z + dz));
+      for (const dz of [-0.2, 0.2]) this.slots.flour.push(new THREE.Vector3(s.shelf.x, 1.3, z + dz));
     }
 
     colliders.boxes.push(
@@ -40,10 +40,10 @@ export class Shop {
     );
   }
 
-  /** Where the n-th shelf item sits (wraps onto a slightly higher layer when crates are full). */
-  slot(n: number) {
-    const base = this.slots[n % this.slots.length];
-    return base.clone().setY(base.y + Math.floor(n / this.slots.length) * 0.3);
+  /** Where the n-th shelf item of a product sits. */
+  slot(type: ItemType, n: number) {
+    const list = this.slots[type];
+    return list[Math.min(n, list.length - 1)].clone();
   }
 }
 

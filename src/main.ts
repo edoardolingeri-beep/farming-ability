@@ -6,8 +6,9 @@ import './ui/styles.css';
 import { Game } from './Game';
 import { wipeSave } from './systems/Save';
 import { showSplash } from './ui/Splash';
+import { askProfile } from './ui/Panels';
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 
 // ?reset in the URL starts a fresh farm (handy while testing).
 if (new URLSearchParams(location.search).has('reset')) wipeSave();
@@ -19,7 +20,7 @@ const game = new Game(gameEl, uiEl);
 game.start();
 if (new URLSearchParams(location.search).has('debug')) (window as unknown as { game: Game }).game = game;
 
-showSplash(uiEl, VERSION).then(() => {
+showSplash(uiEl, VERSION).then(async () => {
   // Full screen where supported (Android). iOS ignores it; "Add to Home Screen" works there.
   const el = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
   try {
@@ -28,5 +29,9 @@ showSplash(uiEl, VERSION).then(() => {
     }
   } catch {
     // ignore
+  }
+  if (game.needsProfile) {
+    const { name, nation } = await askProfile(uiEl);
+    game.setProfile(name, nation);
   }
 });

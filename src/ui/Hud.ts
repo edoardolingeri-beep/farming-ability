@@ -31,6 +31,42 @@ export class Hud {
     this.counters.set(key, { el, value, shown: initial });
   }
 
+  private levelEl: HTMLElement | null = null;
+  private levelNum: HTMLElement | null = null;
+  private levelBar: HTMLElement | null = null;
+
+  /** Star badge with the level number and a progress bar toward the next level. */
+  addLevel() {
+    const el = document.createElement('div');
+    el.className = 'level interactive';
+    el.innerHTML = `<div class="level-star"><span></span></div><div class="level-bar"><i></i></div>`;
+    this.root.prepend(el);
+    this.levelEl = el;
+    this.levelNum = el.querySelector('span');
+    this.levelBar = el.querySelector('i');
+  }
+
+  setLevel(level: number, progress: number, bump = false) {
+    if (!this.levelEl) return;
+    this.levelNum!.textContent = String(level);
+    this.levelBar!.style.width = `${Math.round(Math.min(1, progress) * 100)}%`;
+    if (bump) this.restartAnim(this.levelEl, 'bump');
+  }
+
+  /** Round button pinned to the top-right corner. */
+  addCornerButton(label: string, title: string, onClick: () => void) {
+    const b = document.createElement('button');
+    b.className = 'corner-btn';
+    b.type = 'button';
+    b.textContent = label;
+    b.title = title;
+    b.setAttribute('aria-label', title);
+    b.addEventListener('click', onClick);
+    b.addEventListener('pointerdown', (e) => e.stopPropagation());
+    this.root.parentElement!.append(b);
+    return b;
+  }
+
   /** Screen-space centre of the counter's icon, where flying items should land. */
   target(key: string) {
     const c = this.counters.get(key)!;

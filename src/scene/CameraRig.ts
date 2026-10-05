@@ -38,7 +38,7 @@ export class CameraRig {
 
   /** Eases toward a point (the player). */
   follow(x: number, z: number, dt: number, snap = false) {
-    const k = snap ? 1 : 1 - Math.exp(-dt * 6);
+    const k = snap ? 1 : 1 - Math.exp(-dt * 12);
     this.target.x += (x - this.target.x) * k;
     this.target.z += (z - this.target.z) * k;
     this.apply();

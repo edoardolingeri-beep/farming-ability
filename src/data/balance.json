@@ -6,24 +6,96 @@
     "capacityUpgraded": 16,
     "harvestRadius": 0.95
   },
-  "wheat": {
-    "name": "Grano",
-    "growSeconds": 9,
-    "price": 3
-  },
   "shop": {
-    "shelfCapacity": 16,
-    "customerEverySeconds": [2.5, 5],
+    "shelfCapacity": {
+      "wheat": 12,
+      "flour": 8
+    },
+    "customerEverySeconds": [
+      2.5,
+      5
+    ],
     "maxCustomers": 6,
     "wantMin": 1,
     "wantMax": 3,
     "checkoutSeconds": 0.7,
-    "customerSpeed": 2.8
+    "customerSpeed": 2.8,
+    "wantFlourChance": 0.45
   },
   "pads": [
-    { "id": "field2", "label": "Nuovo campo", "cost": 30, "x": -4.5, "z": 3.4, "w": 2.4, "d": 2.4 },
-    { "id": "backpack", "label": "Braccia forti", "cost": 45, "x": 0.8, "z": 6.6, "w": 1.9, "d": 1.9 },
-    { "id": "cashier", "label": "Cassiere", "cost": 90, "x": 11.2, "z": 0.6, "w": 1.9, "d": 1.9 },
-    { "id": "mill", "label": "Mulino", "cost": 150, "x": -10.6, "z": -1.6, "w": 2.4, "d": 2.4, "soon": true }
+    {
+      "id": "field2",
+      "label": "Nuovo campo",
+      "cost": 30,
+      "x": -4.5,
+      "z": 3.4,
+      "w": 2.4,
+      "d": 2.4,
+      "level": 1,
+      "info": "Un secondo campo di grano: raccogli il doppio."
+    },
+    {
+      "id": "backpack",
+      "label": "Braccia forti",
+      "cost": 45,
+      "x": 0.8,
+      "z": 6.6,
+      "w": 1.9,
+      "d": 1.9,
+      "level": 1,
+      "info": "Porti fino a 16 prodotti invece di 8."
+    },
+    {
+      "id": "cashier",
+      "label": "Cassiere",
+      "cost": 90,
+      "x": 11.2,
+      "z": 0.6,
+      "w": 1.9,
+      "d": 1.9,
+      "level": 2,
+      "info": "Un aiutante serve i clienti alla cassa anche quando non ci sei."
+    },
+    {
+      "id": "mill",
+      "label": "Mulino",
+      "cost": 120,
+      "x": -9.2,
+      "z": -1.6,
+      "w": 2.6,
+      "d": 2.6,
+      "level": 3,
+      "info": "Il mulino trasforma il grano in farina. La farina vale 8 monete invece di 3!"
+    }
+  ],
+  "items": {
+    "wheat": {
+      "name": "Grano",
+      "price": 3
+    },
+    "flour": {
+      "name": "Farina",
+      "price": 8
+    }
+  },
+  "wheat": {
+    "growSeconds": 9
+  },
+  "mill": {
+    "secondsPerSack": 2.5,
+    "inputCapacity": 12,
+    "outputCapacity": 12
+  },
+  "levels": [
+    0,
+    40,
+    120,
+    260,
+    480,
+    800,
+    1250,
+    1850,
+    2600,
+    3600
   ]
 }

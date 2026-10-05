@@ -57,16 +57,16 @@ export function merge(parts: THREE.BufferGeometry[]): THREE.BufferGeometry {
 
 // Painted primitive shortcuts ------------------------------------------------
 
-export const rbox = (w: number, h: number, d: number, r: number, color: THREE.ColorRepresentation, seg = 2) =>
+export const rbox = (w: number, h: number, d: number, r: number, color: THREE.ColorRepresentation, seg = 3) =>
   paint(new RoundedBoxGeometry(w, h, d, seg, Math.min(r, w / 2, h / 2, d / 2)), color);
 
 export const box = (w: number, h: number, d: number, color: THREE.ColorRepresentation) =>
   paint(new THREE.BoxGeometry(w, h, d), color);
 
-export const cyl = (rt: number, rb: number, h: number, color: THREE.ColorRepresentation, seg = 8) =>
+export const cyl = (rt: number, rb: number, h: number, color: THREE.ColorRepresentation, seg = 12) =>
   paint(new THREE.CylinderGeometry(rt, rb, h, seg), color);
 
-export const ball = (r: number, color: THREE.ColorRepresentation, w = 8, h = 6) =>
+export const ball = (r: number, color: THREE.ColorRepresentation, w = 12, h = 9) =>
   paint(new THREE.SphereGeometry(r, w, h), color);
 
 export const ico = (r: number, color: THREE.ColorRepresentation, detail = 1) =>
